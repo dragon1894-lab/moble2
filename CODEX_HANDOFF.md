@@ -190,3 +190,11 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - Continue 클릭 시 비밀번호가 다르면 “비밀번호를 다시 확인해 주세요.”를 표시함
 - Mixing과 SoundCloud 버튼의 클릭 이벤트는 아직 만들지 않아 눌러도 동작하지 않음
 - 로컬 `login.sln` 빌드: 오류 0개, net6.0-windows 지원 종료 경고 1개
+
+
+### 2026-08-11 디자이너 전환
+
+- Form1, Form2, Form3의 컨트롤 선언과 배치를 각 `.Designer.cs` 파일로 옮김
+- 세 폼에 기본 생성자를 추가해 Visual Studio WinForms 디자이너에서 폼을 열 수 있게 함
+- 이제 컨트롤이 실행 시에만 생성되지 않고 디자이너 화면에도 표시됨
+- 로컬 `login.sln` 빌드: 오류 0개, net6.0-windows 지원 종료 경고 1개
