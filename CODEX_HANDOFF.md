@@ -102,7 +102,7 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 |---|---:|---|---:|---|
 | `main` | `ac8fa2c2c2f0` | Initialize main branch with README | 동일 | `README.md` |
 | `test` | `ac8fa2c2c2f0` | Initialize main branch with README | 동일 | `README.md` |
-| `dragon1894-lab` | `49d79d59f40b` | Add Codex cross-device handoff notes | 7 commits ahead | `README.md`, `CODEX_HANDOFF.md` |
+| `dragon1894-lab` | 인수인계 문서 갱신 커밋 | Update Codex handoff | 7 commits 이상 ahead | `README.md`, `CODEX_HANDOFF.md` |
 | `ChoMinKyeong13` | `92dd4e91db3e` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
 | `ChoiJH0711` | `2ac10c483547` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
 | `DH3874` | `757023dbbace` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
@@ -122,15 +122,30 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - 프로젝트 파일이 아직 없으므로 WinForms 폼, `.csproj`, 리소스 중복 충돌은 판단할 수 없음
 - `dragon1894-lab` 브랜치에는 프로젝트 파일 업로드 후 삭제 이력이 있으므로, 통합 전 삭제가 의도된 것인지 확인 필요
 
+## 로컬 작업 상태: project_login
+
+- 작업 경로: `C:\Users\USER\Documents\win\project_login\login`
+- 기존 Visual Studio 2022 WinForms 프로젝트 `login.sln`을 사용함
+- 2026-08-11에 SoundClound 로그인 기능 초안을 로컬에 구현함
+  - 첫 폼: ID, PW, Login, Create account, Guest
+  - 회원가입 폼: 이름, 생년월일, 전화번호, 아이디, 비밀번호, 닉네임, 개인정보 동의 라디오 버튼
+  - 동의하지 않거나 미선택 시 “개인정보 수집에 동의 해주세요.” 메시지
+  - 가입 후 첫 화면으로 돌아와 ID/PW 로그인 가능
+  - 로그인/Guest 후 프로필과 Mixing, SoundCloud 버튼이 있는 완료 폼 표시
+- 회원정보는 현재 실행 중에만 기억하는 초안이며 파일/DB 저장과 실제 미디어 재생은 아직 구현하지 않음
+- `dotnet build login.sln --no-restore` 확인: 오류 0개, `net6.0-windows` 지원 종료 경고 1개
+- 이 로컬 프로젝트는 아직 GitHub 브랜치에 업로드하거나 병합하지 않음
+
 ## 다음 작업
 
-1. 조원들에게 각자 개인 브랜치에 실제 Visual Studio 프로젝트 파일을 다시 올렸는지 확인합니다.
-2. 특히 `dragon1894-lab` 브랜치의 `DDD.sln`, `DDD.csproj`, `Program.cs`, `GameForm.cs` 삭제가 의도된 것인지 확인합니다.
-3. 각 브랜치에 `.sln`, `.csproj`, `.cs`, `.Designer.cs`, `.resx`, 리소스 파일이 올라온 뒤 파일 구조를 다시 검사합니다.
-4. 바로 합치지 말고 `test...개인브랜치` 비교로 변경 파일, 삭제 파일, 중복 폼, 프로젝트 파일 충돌 가능성을 먼저 보고합니다.
-5. 사용자의 명시적 허락을 받은 뒤 개인 브랜치를 `test`에 통합합니다.
-6. 통합본을 내려받아 Visual Studio 2022에서 빌드·실행 검증합니다.
-7. 테스트가 성공하고 사용자가 요청하면 `main`에 최종 반영합니다.
+1. Visual Studio 2022에서 `C:\Users\USER\Documents\win\project_login\login\login.sln`을 열고 실제 폼 디자인을 다듬습니다.
+2. 회원가입 정보를 프로그램 종료 후에도 보관할지(텍스트 파일/DB)를 결정합니다.
+3. Mixing과 SoundCloud 버튼이 열 동작 또는 다음 폼을 정합니다.
+4. 음원 재생이 필요하면 강의 16장의 Windows Media Player 또는 NAudio 예제를 기준으로 별도 구현합니다.
+5. GitHub에 올리기 전 `.vs`, `bin`, `obj`, `.csproj.user`는 제외하고 소스와 프로젝트 파일만 확인합니다.
+6. 조원들에게 각자 개인 브랜치에 실제 Visual Studio 프로젝트 파일을 다시 올렸는지 확인합니다.
+7. 바로 합치지 말고 `test...개인브랜치` 비교로 변경 파일, 삭제 파일, 중복 폼, 프로젝트 파일 충돌 가능성을 먼저 보고합니다.
+8. 사용자의 명시적 허락을 받은 뒤 개인 브랜치를 `test`에 통합합니다.
 
 ## Codex 작업 규칙
 
@@ -151,8 +166,10 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - `main`과 `test`가 아직 동일 커밋임을 확인
 - 모든 개인 브랜치에 현재 실제 Visual Studio 프로젝트 파일이 없고 README 중심 상태임을 확인
 - `dragon1894-lab` 브랜치의 과거 프로젝트 파일 업로드 후 삭제 이력을 확인
-- 병합, 파일 삭제, 브랜치 변경은 수행하지 않음
-- 오늘 확인한 실제 상태와 다음 작업을 이 파일에 반영함
+- `C:\Users\USER\Documents\win\project_login\login`의 기존 `login.sln`에 SoundClound 로그인 기능 초안을 구현
+- ch13~ch17 WinForms 강의 PDF를 검토하고 TextBox, RadioButton, GroupBox, Button Click, MessageBox, 여러 폼 전환 방식으로 작성
+- 로컬 빌드 오류 0개 확인
+- GitHub 병합이나 기존 파일 삭제는 수행하지 않음
 
 ### 2026-08-10
 
