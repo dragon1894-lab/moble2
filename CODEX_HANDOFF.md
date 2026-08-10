@@ -19,6 +19,8 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - 저장소: https://github.com/dragon1894-lab/moble2
 - 소유자: `dragon1894-lab`
 - 프로젝트: Visual Studio 2022 WinForms 조별 프로젝트
+- 공개 저장소 여부: 공개 저장소
+- 기본 브랜치: `main`
 
 ## 브랜치 구조
 
@@ -72,27 +74,61 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - 개인 이름 브랜치 6개 생성
 - 개인 브랜치 6개의 README에 업로드·다운로드·실행·삭제 방법 작성
 - `main`과 `test`의 README는 개인 안내문 업데이트에서 제외
-- `dragon1894-lab` 브랜치에 두더지 게임 프로젝트 업로드
+- `dragon1894-lab` 브랜치에 두더지 게임 프로젝트 업로드 이력이 있음
   - `DDD.sln`
   - `DDD.csproj`
   - `Program.cs`
   - `GameForm.cs`
-- 마지막 확인 당시 협력자:
-  - `ChoMinKyeong13`: 참여 완료
-  - `ChoiJH0711`: 참여 완료
-  - `DH3874`: 참여 완료
-  - `seunghee622`: 참여 완료
-  - `joyeongjun`: 마지막 확인 당시 초대 수락 대기
+- 단, 2026-08-10 같은 날 이후 커밋에서 위 프로젝트 파일들이 삭제됨
 - 아직 개인 브랜치들을 `test`에 통합하지 않음
 - 아직 `test`를 `main`에 합치지 않음
 
+## 2026-08-11 실제 GitHub 상태 확인
+
+확인 기준: 2026-08-11 KST Codex 작업 중 GitHub API와 GitHub connector로 확인.
+
+### 저장소 상태
+
+- 저장소: `dragon1894-lab/moble2`
+- 공개 저장소: 맞음
+- 기본 브랜치: `main`
+- 마지막 push 시각: 2026-08-10 14:29:18 UTC
+- `main`과 `test`는 같은 커밋 `ac8fa2c2c2f0` 상태
+- 협력자 목록 API는 인증이 필요해 공개 API만으로는 재확인하지 못함
+
+### 브랜치별 최신 상태
+
+| 브랜치 | HEAD | 마지막 커밋 | `test` 대비 | 현재 주요 파일 |
+|---|---:|---|---:|---|
+| `main` | `ac8fa2c2c2f0` | Initialize main branch with README | 동일 | `README.md` |
+| `test` | `ac8fa2c2c2f0` | Initialize main branch with README | 동일 | `README.md` |
+| `dragon1894-lab` | `49d79d59f40b` | Add Codex cross-device handoff notes | 7 commits ahead | `README.md`, `CODEX_HANDOFF.md` |
+| `ChoMinKyeong13` | `92dd4e91db3e` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
+| `ChoiJH0711` | `2ac10c483547` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
+| `DH3874` | `757023dbbace` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
+| `seunghee622` | `ec95884aea1d` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
+| `joyeongjun` | `54e8f9d66e75` | Add team upload, download, run, and deletion guide | 1 commit ahead | `README.md` |
+
+### 업로드 상태 판단
+
+- 2026-08-11 확인 당시 `.sln`, `.csproj`, `.cs`, `.Designer.cs`, `.resx` 파일이 남아 있는 개인 브랜치는 없음
+- 모든 조원 브랜치의 현재 파일 구성은 안내용 `README.md` 중심임
+- `dragon1894-lab` 브랜치도 현재는 `README.md`와 `CODEX_HANDOFF.md`만 남아 있음
+- 따라서 아직 `test`에 통합할 실제 Visual Studio 프로젝트 작업물이 확인되지 않음
+
+### 충돌 가능성 메모
+
+- 현재 상태만 보면 개인 브랜치들이 모두 `README.md`를 수정했기 때문에 바로 합치면 README 충돌 가능성이 있음
+- 프로젝트 파일이 아직 없으므로 WinForms 폼, `.csproj`, 리소스 중복 충돌은 판단할 수 없음
+- `dragon1894-lab` 브랜치에는 프로젝트 파일 업로드 후 삭제 이력이 있으므로, 통합 전 삭제가 의도된 것인지 확인 필요
+
 ## 다음 작업
 
-1. GitHub의 실제 협력자·브랜치·최근 커밋 상태를 다시 확인합니다.
-2. 각 조원이 자기 브랜치에 작업물을 올렸는지 확인합니다.
-3. 사용자가 요청하면 개인 브랜치별 변경사항과 프로젝트 구조를 검사합니다.
-4. 바로 합치지 말고 충돌 가능성과 중복 폼·프로젝트 파일을 먼저 보고합니다.
-5. 사용자의 허락을 받은 뒤 `test`에 통합합니다.
+1. 조원들에게 각자 개인 브랜치에 실제 Visual Studio 프로젝트 파일을 다시 올렸는지 확인합니다.
+2. 특히 `dragon1894-lab` 브랜치의 `DDD.sln`, `DDD.csproj`, `Program.cs`, `GameForm.cs` 삭제가 의도된 것인지 확인합니다.
+3. 각 브랜치에 `.sln`, `.csproj`, `.cs`, `.Designer.cs`, `.resx`, 리소스 파일이 올라온 뒤 파일 구조를 다시 검사합니다.
+4. 바로 합치지 말고 `test...개인브랜치` 비교로 변경 파일, 삭제 파일, 중복 폼, 프로젝트 파일 충돌 가능성을 먼저 보고합니다.
+5. 사용자의 명시적 허락을 받은 뒤 개인 브랜치를 `test`에 통합합니다.
 6. 통합본을 내려받아 Visual Studio 2022에서 빌드·실행 검증합니다.
 7. 테스트가 성공하고 사용자가 요청하면 `main`에 최종 반영합니다.
 
@@ -105,6 +141,18 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - 작업을 마칠 때 이 문서의 **최근 작업 기록**과 **다음 작업**을 갱신합니다.
 
 ## 최근 작업 기록
+
+### 2026-08-11
+
+- `CODEX_HANDOFF.md`를 먼저 읽고 작업을 이어받음
+- GitHub API로 실제 저장소, 브랜치, 최근 커밋 상태 확인
+- 로컬 `git ls-remote`는 Windows schannel 자격 증명 오류로 실패하여 Python HTTPS API와 GitHub connector로 우회 확인
+- 브랜치 8개 확인: `main`, `test`, 개인 브랜치 6개
+- `main`과 `test`가 아직 동일 커밋임을 확인
+- 모든 개인 브랜치에 현재 실제 Visual Studio 프로젝트 파일이 없고 README 중심 상태임을 확인
+- `dragon1894-lab` 브랜치의 과거 프로젝트 파일 업로드 후 삭제 이력을 확인
+- 병합, 파일 삭제, 브랜치 변경은 수행하지 않음
+- 오늘 확인한 실제 상태와 다음 작업을 이 파일에 반영함
 
 ### 2026-08-10
 
