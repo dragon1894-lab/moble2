@@ -1,370 +1,189 @@
-ï»¿using System;
-using System.IO;
+using System;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
-using NAudio.Wave;
+using NAudio.Wave; // NuGet ÆĞÅ°Áö °ü¸®ÀÚ¿¡¼­ NAudio ¼³Ä¡ ÇÊ¼ö
 
-namespace WinFormsApp6
+namespace DJ
 {
     public partial class Form1 : Form
     {
-        // ==========================================
-        // Deck A
-        // ==========================================
-        private AudioFileReader? audioFileA;
-        private WaveOutEvent? outputDeviceA;
-
-        // Deck A Hot Cue
-        private TimeSpan hotCueA1 = TimeSpan.FromMinutes(2);
-        private TimeSpan hotCueA2 = TimeSpan.FromSeconds(85);
-
-        // Deck A Loop (ë°•ì ìª¼ê°œê¸° ë³€ìˆ˜)
-        private System.Windows.Forms.Timer timerLoop;
-        private double bpmA = 120.0;          // ê¸°ë³¸ BPM
-        private double loopBeatsA = 4.0;       // ê¸°ë³¸ 4ë°•ì
-        private bool isLoopActiveA = false;   // ë£¨í”„ í™œì„±í™” ì—¬ë¶€
-        private TimeSpan loopStartA;          // ë£¨í”„ ì‹œì‘ ì‹œì 
-        private TimeSpan loopEndA;            // ë£¨í”„ ì¢…ë£Œ ì‹œì 
-
-
-        // ==========================================
-        // Deck B
-        // ==========================================
-        private AudioFileReader? audioFileB;
-        private WaveOutEvent? outputDeviceB;
-
-        // Deck B Hot Cue
-        private TimeSpan hotCueB1 = TimeSpan.FromMinutes(2);
-        private TimeSpan hotCueB2 = TimeSpan.FromSeconds(85);
-
+        private AudioFileReader audioFile; //À½¿ø ÆÄÀÏ µ¥ÀÌÅÍ °ü¸®ÀÚ (³ë·¡ÀÇ ÀüÃ¼ ±æÀÌ:TotalTime, ÇöÀç Àç»ı À§Ä¡:CurrentTime)
+        private WaveOutEvent waveOut; // »ç¿îµå Ä«µå¸¦ ÅëÇÑ ¿Àµğ¿À Ãâ·Â ÀåÄ¡ (audioFileÀÌ ÀĞ¾î¿Â °É Ãâ·Â(Play, Stop)ÇÏ±â À§ÇØ)
+        private float[] peaks; //¼Ò¸® Å©±â ÀúÀå ¹è¿­ 
+        private System.Windows.Forms.Timer timer; // ½Ç½Ã°£ È­¸é °»½Å¿ë Å¸ÀÌ¸Ó (pictureBox1.Invalidate ¸í·ÉÇÔ)
 
         public Form1()
         {
             InitializeComponent();
 
-            // Formì´ í‚¤ë³´ë“œ ì…ë ¥ì„ ë°›ë„ë¡ ì„¤ì •
-            this.KeyPreview = true;
+            // È­¸é ½Ç½Ã°£ °»½Å¿ë Å¸ÀÌ¸Ó (¾à 33 FPS)
+            timer = new System.Windows.Forms.Timer(); //Å¸ÀÌ¸Ó °´Ã¼ »ı¼º
+            timer.Interval = 30; //Å¸ÀÌ¸Ó ½ÇÇà ÁÖ±â 30ms·Î ÁöÁ¤
+            timer.Tick += (s, e) => pictureBox1.Invalidate(); //s´Â ÀÌº¥Æ® ¹ß»ı °´Ã¼, e´Â ÀÌº¥Æ® ¸Å°³º¯¼ö, Áï½Ã ´Ù½Ã ±×·Á¶ó
 
-            // í‚¤ë³´ë“œ ì´ë²¤íŠ¸ ì—°ê²°
-            this.KeyDown += Form1_KeyDown;
+            // PictureBox ÀÌº¥Æ® ¿¬°á
+            pictureBox1.Paint += PictureBox1_Paint; //e.Graphics °´Ã¼ ÅëÇØ ÇÇÃÄ¹Ú½º¿¡ ¼±µîµî Á÷Á¢ ±×¸²
+            pictureBox1.MouseDown += PictureBox1_MouseDown; // Å¬¸¯µÈ À§Ä¡ÀÇ ÁÂÇ¥¸¦ ¾ò°Å³ª ¸¶¿ì½º ¼±ÅÃ µ¿ÀÛÀ» ±¸ÇöÇÔ
+            pictureBox1.Resize += (s, e) => pictureBox1.Invalidate(); // Å©±â º¯°æ ½Ã ÆÄÇü Àç°è»ê/Àç·»´õ¸µ
 
-            // ì‹¤ì‹œê°„ ë£¨í”„ ê°ì§€ íƒ€ì´ë¨¸ ì„¤ì • (30ms ê°„ê²©)
-            timerLoop = new System.Windows.Forms.Timer();
-            timerLoop.Interval = 30;
-            timerLoop.Tick += TimerLoop_Tick;
-            timerLoop.Start();
-
-            // ì´ˆê¸° ë²„íŠ¼ í…ìŠ¤íŠ¸ í‘œì‹œ
-            UpdateButton5Text();
-
+            // Æû Á¾·á ½Ã ¿Àµğ¿À ¸®¼Ò½º ÇØÁ¦
             this.FormClosing += Form1_FormClosing;
         }
 
-        // button5 í…ìŠ¤íŠ¸ ì—…ë°ì´íŠ¸ (í˜„ì¬ ìƒíƒœ ë° ë°•ì)
-        private void UpdateButton5Text()
+        // ¹öÆ° Å¬¸¯ ½Ã À½¾Ç ÆÄÀÏ ¿­±â
+        private void button1_Click(object sender, EventArgs e)
         {
-            string displayBeats = loopBeatsA < 1 ? $"1/{(int)(1 / loopBeatsA)}" : loopBeatsA.ToString();
-            button5.Text = isLoopActiveA ? $"ğŸ” ON ({displayBeats})" : $"ğŸ” {displayBeats}";
-        }
-
-        // ì‹¤ì‹œê°„ ë£¨í”„ ê²€ì‚¬ ë° ìœ„ì¹˜ ë¦¬ì…‹
-        private void TimerLoop_Tick(object? sender, EventArgs e)
-        {
-            if (isLoopActiveA && audioFileA != null)
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                // ì¬ìƒ ìœ„ì¹˜ê°€ ë£¨í”„ ì¢…ë£Œ ì§€ì ì— ë„ë‹¬í•˜ê±°ë‚˜ ë„˜ì–´ì„œë©´ ì‹œì‘ ìœ„ì¹˜ë¡œ ê°•ì œ ì´ë™
-                if (audioFileA.CurrentTime >= loopEndA)
+                openFileDialog.Filter = "¿Àµğ¿À ÆÄÀÏ (*.mp3;*.wav)|*.mp3;*.wav|¸ğµç ÆÄÀÏ (*.*)|*.*";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    audioFileA.CurrentTime = loopStartA;
+                    LoadAudio(openFileDialog.FileName);
                 }
             }
         }
 
-        // ë°•ìì— ë§ì¶˜ ë£¨í”„ êµ¬ê°„ ì¬ê³„ì‚°
-        private void UpdateLoopRangeA()
+        // À½¿ø ºÒ·¯¿À±â ¹× ÆÄÇü µ¥ÀÌÅÍ ÃßÃâ
+        public void LoadAudio(string filePath)
         {
-            if (audioFileA == null) return;
+            CleanupAudio();
 
-            // 1ë°•ìì˜ ì´ˆ ë‹¨ìœ„ ì‹œê°„ = 60 / BPM
-            double secondsPerBeat = 60.0 / bpmA;
-            double loopDurationSeconds = secondsPerBeat * loopBeatsA;
-
-            loopEndA = loopStartA.Add(TimeSpan.FromSeconds(loopDurationSeconds));
-
-            // ì´ ê¸¸ì´ë¥¼ ì´ˆê³¼í•˜ì§€ ì•Šë„ë¡ ì˜ˆì™¸ ì²˜ë¦¬
-            if (loopEndA > audioFileA.TotalTime)
+            // 1. [ÆÄÇü ºĞ¼®] µ¶¸³µÈ ÀÓ½Ã °´Ã¼·Î ÇÇÅ© µ¥ÀÌÅÍ ÃßÃâ ÈÄ ÇØÁ¦
+            using (var tempReader = new AudioFileReader(filePath))
             {
-                loopEndA = audioFileA.TotalTime;
+                int width = Math.Max(1, pictureBox1.Width);
+                peaks = new float[width];
+                int samplesPerPixel = (int)(tempReader.Length / (width * sizeof(float)));
+                if (samplesPerPixel < 1) samplesPerPixel = 1;
+
+                float[] buffer = new float[samplesPerPixel];
+
+                for (int i = 0; i < width; i++)
+                {
+                    int read = tempReader.Read(buffer, 0, samplesPerPixel);
+                    if (read == 0) break;
+                    peaks[i] = buffer.Max(f => Math.Abs(f));
+                }
+            }
+
+            // 2. [½ÇÁ¦ Àç»ı] ±ú²ıÇÑ »óÅÂÀÇ »õ·Î¿î AudioFileReader »ı¼º ¹× Àç»ı
+            audioFile = new AudioFileReader(filePath);
+            waveOut = new WaveOutEvent();
+            waveOut.Init(audioFile);
+            waveOut.Play();        // Àç»ı ½ÃÀÛ
+            timer.Start();         // ¾Ö´Ï¸ŞÀÌ¼Ç Å¸ÀÌ¸Ó ½ÃÀÛ
+        }
+
+        // PictureBox Å©±â¿¡ ¸ÂÃç ¹İÂÊ ÆÄÇü ±×¸®±â
+        private void PictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            if (peaks == null || audioFile == null || peaks.Length == 0) return;
+
+            // ¾îµÎ¿î ¹è°æ»ö Ã¤¿ì±â
+            e.Graphics.Clear(Color.FromArgb(20, 22, 32));
+
+            int currentWidth = pictureBox1.Width;
+            int currentHeight = pictureBox1.Height;
+
+            // ÇöÀç ÁøÇà ºñÀ² °è»ê
+            double progress = audioFile.CurrentTime.TotalMilliseconds / audioFile.TotalTime.TotalMilliseconds;
+            int progressX = (int)(currentWidth * progress);
+
+            // PictureBox ³Êºñ¿¡ ¸Â°Ô ¸·´ë °£°İ°ú µÎ²² ÀÚµ¿ °è»ê (ºó Æ´ ¹æÁö)
+            float stepX = (float)currentWidth / peaks.Length;
+            float penWidth = Math.Max(1.0f, stepX);
+
+            for (int i = 0; i < peaks.Length; i++)
+            {
+                float x = i * stepX;
+                // PictureBox ³ôÀÌÀÇ ÃÖ´ë 95%±îÁö »ç¿ë
+                int barHeight = (int)(peaks[i] * (currentHeight * 0.6f));
+                Color barColor = (x < progressX) ? Color.FromArgb(255, 120, 0) : Color.FromArgb(80, 85, 100);
+
+                using (Pen pen = new Pen(barColor, penWidth))
+                {
+                    // ¹Ù´Ú(currentHeight)¿¡¼­ À§ÂÊ(currentHeight - barHeight)À¸·Î¸¸ ±×¸®±â
+                    e.Graphics.DrawLine(pen, x, currentHeight, x, currentHeight - barHeight);
+                }
+            }
+
+            // Àç»ı À§Ä¡ ¼¼·Î¼± Ç¥½Ã (Èò»ö)
+            using (Pen whitePen = new Pen(Color.White, 2))
+            {
+                e.Graphics.DrawLine(whitePen, progressX, 0, progressX, currentHeight);
             }
         }
 
-
-        // ==========================================
-        // ğŸµ Deck A ë…¸ë˜ ë¶ˆëŸ¬ì˜¤ê¸°
-        // ==========================================
-        private void button1_Click(object sender, EventArgs e)
+        // ¸¶¿ì½º Å¬¸¯ À§Ä¡·Î ÀÌµ¿ (Seek)
+        private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            using OpenFileDialog dialog = new OpenFileDialog();
+            if (audioFile == null || audioFile.TotalTime.TotalMilliseconds <= 0) return;
 
-            dialog.Title = "Deck A ë…¸ë˜ ì„ íƒ";
+            double targetRatio = (double)e.X / pictureBox1.Width;
+            targetRatio = Math.Max(0, Math.Min(1, targetRatio));
 
-            dialog.Filter =
-                "MP3 íŒŒì¼|*.mp3|" +
-                "WAV íŒŒì¼|*.wav|" +
-                "ëª¨ë“  íŒŒì¼|*.*";
-
-            if (dialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            try
-            {
-                // ê¸°ì¡´ Deck A ë° ë£¨í”„ ìƒíƒœ ì •ë¦¬
-                isLoopActiveA = false;
-                UpdateButton5Text();
-
-                outputDeviceA?.Stop();
-                outputDeviceA?.Dispose();
-                audioFileA?.Dispose();
-
-                // ë…¸ë˜ ì—´ê¸°
-                audioFileA = new AudioFileReader(dialog.FileName);
-
-                // ì¶œë ¥ ì¥ì¹˜
-                outputDeviceA = new WaveOutEvent();
-
-                // ì—°ê²°
-                outputDeviceA.Init(audioFileA);
-
-                // ë°”ë¡œ ì¬ìƒ
-                outputDeviceA.Play();
-
-                MessageBox.Show(
-                    "Deck A ì¬ìƒ ì‹œì‘!\n\n" +
-                    Path.GetFileName(dialog.FileName)
-                );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Deck A ì¬ìƒ ì˜¤ë¥˜:\n\n" +
-                    ex.ToString()
-                );
-            }
+            audioFile.CurrentTime = TimeSpan.FromMilliseconds(audioFile.TotalTime.TotalMilliseconds * targetRatio);
+            pictureBox1.Invalidate();
         }
 
-
-        // ==========================================
-        // ğŸ¹ í‚¤ë³´ë“œ ì…ë ¥ (J: +, K: -, L: Loop)
-        // ==========================================
-        private void Form1_KeyDown(object? sender, KeyEventArgs e)
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
-            // --------------------------------------
-            // Deck A Hot Cue
-            // --------------------------------------
-            if (e.KeyCode == Keys.A)
-            {
-                HotCueA1();
-            }
-
-            if (e.KeyCode == Keys.Z)
-            {
-                HotCueA2();
-            }
-
-            // --------------------------------------
-            // Deck A Loop ì¡°ì‘ (J: +, K: -, L: Loop)
-            // --------------------------------------
-            if (e.KeyCode == Keys.J)
-            {
-                button3_Click(sender!, e); // (+) ë²„íŠ¼ ì‹¤í–‰
-            }
-
-            if (e.KeyCode == Keys.K)
-            {
-                button4_Click(sender!, e); // (-) ë²„íŠ¼ ì‹¤í–‰
-            }
-
-            if (e.KeyCode == Keys.L)
-            {
-                button5_Click(sender!, e); // (ì¤‘ì•™ ë£¨í”„ ON/OFF) ë²„íŠ¼ ì‹¤í–‰
-            }
-
-            // --------------------------------------
-            // Deck B Hot Cue
-            // --------------------------------------
-            if (e.KeyCode == Keys.Q)
-            {
-                HotCueB1();
-            }
-
-            if (e.KeyCode == Keys.W)
-            {
-                HotCueB2();
-            }
+            // MouseDown¿¡¼­ À§Ä¡ ÀÌµ¿À» Ã³¸®ÇÏ¹Ç·Î ºñ¿öµÓ´Ï´Ù.
         }
 
-
-        // ==========================================
-        // ğŸ”´ Deck A / Hot Cue
-        // ==========================================
-        private void HotCueA1()
+        private void CleanupAudio()
         {
-            if (audioFileA == null)
-            {
-                MessageBox.Show("Deck Aì— ë…¸ë˜ë¥¼ ë¨¼ì € ë„£ìœ¼ì„¸ìš”.");
-                return;
-            }
-
-            audioFileA.CurrentTime = hotCueA1;
-
-            if (isLoopActiveA)
-            {
-                loopStartA = audioFileA.CurrentTime;
-                UpdateLoopRangeA();
-            }
-
-            outputDeviceA?.Play();
+            timer?.Stop();
+            waveOut?.Stop();
+            waveOut?.Dispose();
+            audioFile?.Dispose();
+            waveOut = null;
+            audioFile = null;
         }
 
-        private void HotCueA2()
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (audioFileA == null)
-            {
-                MessageBox.Show("Deck Aì— ë…¸ë˜ë¥¼ ë¨¼ì € ë„£ìœ¼ì„¸ìš”.");
-                return;
-            }
-
-            audioFileA.CurrentTime = hotCueA2;
-
-            if (isLoopActiveA)
-            {
-                loopStartA = audioFileA.CurrentTime;
-                UpdateLoopRangeA();
-            }
-
-            outputDeviceA?.Play();
+            CleanupAudio();
         }
 
-
-        // ==========================================
-        // ğŸ”µ Deck B / Hot Cue
-        // ==========================================
-        private void HotCueB1()
+        private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            if (audioFileB == null)
+            if (glitchProvider == null) return;
+
+            int sliderValue = trackBar1.Value;
+
+            if (sliderValue == 0)
             {
-                MessageBox.Show("Deck Bì— ë…¸ë˜ë¥¼ ë¨¼ì € ë„£ìœ¼ì„¸ìš”.");
-                return;
+                // 0À¸·Î ³õÀ¸¸é ½ºÅÍÅÍ ÇØÁ¦ (Á¤»ó Àç»ı)
+                glitchProvider.StopStutter();
             }
-
-            audioFileB.CurrentTime = hotCueB1;
-            outputDeviceB?.Play();
-        }
-
-        private void HotCueB2()
-        {
-            if (audioFileB == null)
+            else
             {
-                MessageBox.Show("Deck Bì— ë…¸ë˜ë¥¼ ë¨¼ì € ë„£ìœ¼ì„¸ìš”.");
-                return;
-            }
+                // Æ®·¢¹Ù À§Ä¡(¿¹: 10ms~100ms)¿¡ ¸ÂÃç ½Ç½Ã°£ ½ºÅÍÅÍ ¹ßµ¿
+                // totalMs¸¦ ÃæºĞÈ÷ ±æ°Ô ÁöÁ¤ÇÏ¿© µå·¡±×ÇÏ´Â µ¿¾È ½ºÅÍÅÍ°¡ À¯ÁöµÇµµ·Ï ¼³Á¤
+                float sliceMs = sliderValue;
+                float totalMs = 5000f; // µå·¡±× Áß Áö¼Ó ½Ã°£ (5ÃÊ)
 
-            audioFileB.CurrentTime = hotCueB2;
-            outputDeviceB?.Play();
-        }
-
-
-        // ==========================================
-        // ğŸµ Deck B ë…¸ë˜ ë¶ˆëŸ¬ì˜¤ê¸°
-        // ==========================================
-        private void button2_Click_1(object sender, EventArgs e)
-        {
-            using OpenFileDialog dialog = new OpenFileDialog();
-
-            dialog.Title = "Deck B ë…¸ë˜ ì„ íƒ";
-
-            dialog.Filter =
-                "MP3 íŒŒì¼|*.mp3|" +
-                "WAV íŒŒì¼|*.wav|" +
-                "ëª¨ë“  íŒŒì¼|*.*";
-
-            if (dialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            try
-            {
-                outputDeviceB?.Stop();
-                outputDeviceB?.Dispose();
-                audioFileB?.Dispose();
-
-                audioFileB = new AudioFileReader(dialog.FileName);
-                outputDeviceB = new WaveOutEvent();
-
-                outputDeviceB.Init(audioFileB);
-                outputDeviceB.Play();
-
-                MessageBox.Show(
-                    "Deck B ì¬ìƒ ì‹œì‘!\n\n" +
-                    Path.GetFileName(dialog.FileName)
-                );
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    "Deck B ì¬ìƒ ì˜¤ë¥˜:\n\n" +
-                    ex.ToString()
-                );
+                glitchProvider.TriggerStutter(sliceMs, totalMs, chkReverse.Checked);
             }
         }
-
-
-        // ==========================================
-        // ğŸ”„ ë°•ì ë£¨í”„ ì¡°ì‘ ë²„íŠ¼
-        // ==========================================
-
-        // [ë²„íŠ¼ 3 / Key: J] í”ŒëŸ¬ìŠ¤ (+) : ë°•ì 2ë°°ë¡œ ëŠ˜ë¦¬ê¸°
-        private void button3_Click(object sender, EventArgs e)
+            private void trackBar1_MouseUp(object me, MouseEventArgs e)
         {
-            loopBeatsA = Math.Min(32.0, loopBeatsA * 2.0); // ìµœëŒ€ 32ë°•ì
-            UpdateLoopRangeA();
-            UpdateButton5Text();
+            // ¼ÕÀ» ¶¼¸é ¿ø»óº¹±¸µÇ´Â ½ºÀ§Ä¡ ÇüÅÂ·Î ¾²°í ½ÍÀ» ¶§ È°¼ºÈ­
+             trackBar1.Value = 0;
+             glitchProvider?.StopStutter();
         }
-
-        // [ë²„íŠ¼ 4 / Key: K] ë§ˆì´ë„ˆìŠ¤ (-) : ë°•ì ì ˆë°˜ìœ¼ë¡œ ìª¼ê°œê¸°
-        private void button4_Click(object sender, EventArgs e)
-        {
-            loopBeatsA = Math.Max(0.125, loopBeatsA / 2.0); // ìµœì†Œ 1/8ë°•ì
-            UpdateLoopRangeA();
-            UpdateButton5Text();
-        }
-
-        // [ë²„íŠ¼ 5 / Key: L] ì¤‘ì•™ ë£¨í”„ : ë£¨í”„ ì¼œê¸° / ë„ê¸°
-        private void button5_Click(object sender, EventArgs e)
-        {
-            if (audioFileA == null)
+        public class GlitchStutterProvider : ISampleProvider
+        {           
+            /// <summary>
+            /// Æ®·¢¹Ù°¡ 0ÀÌ µÇ¾úÀ» ¶§ ½ºÅÍÅÍ¸¦ Áï½Ã Áß´ÜÇÏ°í ¿øº» ¿Àµğ¿À·Î º¹±Í
+            /// </summary>
+            public void StopStutter()
             {
-                MessageBox.Show("Deck Aì— ë…¸ë˜ë¥¼ ë¨¼ì € ë„£ìœ¼ì„¸ìš”.");
-                return;
+                this.isStuttering = false;
+                this.stutterRemainingSamples = 0;
             }
-
-            // ë£¨í”„ ìƒíƒœ í† ê¸€ (ON/OFF)
-            isLoopActiveA = !isLoopActiveA;
-
-            if (isLoopActiveA)
-            {
-                loopStartA = audioFileA.CurrentTime; // í˜„ì¬ ìœ„ì¹˜ë¥¼ ë£¨í”„ ì‹œì‘ì ìœ¼ë¡œ ì¡ìŒ
-                UpdateLoopRangeA();
-            }
-
-            UpdateButton5Text();
-        }
-
-        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
-        {
-            timerLoop?.Stop();
-            outputDeviceA?.Dispose();
-            audioFileA?.Dispose();
-            outputDeviceB?.Dispose();
-            audioFileB?.Dispose();
         }
     }
 }
