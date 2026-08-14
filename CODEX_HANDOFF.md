@@ -198,3 +198,174 @@ CODEX_HANDOFF.md를 먼저 읽어줘.
 - 세 폼에 기본 생성자를 추가해 Visual Studio WinForms 디자이너에서 폼을 열 수 있게 함
 - 이제 컨트롤이 실행 시에만 생성되지 않고 디자이너 화면에도 표시됨
 - 로컬 `login.sln` 빌드: 오류 0개, net6.0-windows 지원 종료 경고 1개
+
+---
+
+## 2026-08-14 최신 인수인계
+
+### 현재 기준 브랜치와 프로젝트
+
+- 실제 최신 통합 코드는 GitHub `DH3874` 브랜치에 있음
+- `DH3874`는 확인 시점에 `main`보다 4개 커밋 앞서 있음
+- 이전 통합본 `soundkloud` 폴더도 남아 있으나, 앞으로 확인하고 수정할 최신 프로젝트는 아래 경로임
+
+```text
+DH3874/DJing Final/DJing.sln
+```
+
+- 프로그램 시작점은 `DJing Final/Program.cs`이고 `Application.Run(new Login())`으로 로그인 창을 실행함
+- 대상 프레임워크는 `.NET 6 Windows`
+- 주요 패키지:
+  - `MySql.Data 26.7.0`
+  - `NAudio 2.3.0`
+  - `SoundTouch.Net 2.3.2`
+- 프로그램이 사용하는 DB는 `djing`
+- 현재 DB 연결 문자열은 여러 파일에 직접 들어 있으며 기본값은 다음과 같음
+
+```text
+Server=localhost;Database=djing;Uid=root;Pwd=1111;
+```
+
+### dragon1894-lab의 로그인 원본 작업
+
+- DB 연결 전 로그인 프로젝트가 다음 경로에 보존되어 있음
+
+```text
+dragon1894-lab/login1_0811
+```
+
+- 로컬 원본 경로:
+
+```text
+C:\Users\moble\Documents\Codex\Mobel_project_login_0812\login1_0811
+```
+
+- GitHub `login1_0811`과 로컬 원본은 핵심 `Form1.cs`~`Form4.cs` 동작 코드가 같은 버전임
+- `Form1`: DB 없이 `MyID`, `MyPW`로 로그인
+- `Form2`: 회원가입 정보 검증 및 `CreatedID`, `CreatedPW` 전달
+- `Form3`: 로그인 후 선택 화면 및 프로필 수정 폼 연결
+- `Form4`: 프로필 아이콘 선택, 비밀번호 변경, 전화번호 변경 UI와 입력 검증
+- `login1_0813`은 이후 MySQL 연동이 추가된 버전
+- `DH3874/DJing Final`은 팀 프로젝트 최신 통합본
+
+### 최신 DJing Final 기능 확인
+
+현재 확인된 기능:
+
+- 로그인, 회원가입, 관리자 분기, 게스트 로그인
+- 프로필 아이콘, 비밀번호, 전화번호 변경
+- 음악 업로드, 수정, 삭제
+- 음악 검색, 재생, 이전/다음 곡, 볼륨, 파형
+- 음악 좋아요와 재생목록
+- 댓글 작성, 삭제, 댓글 좋아요
+- 마이페이지
+- DJ 믹싱 화면과 오디오 처리 기능
+
+### 최신 통합본 점검 결과
+
+1. 여러 폼의 세로 중앙 배치 계산이 잘못되어 있음.
+
+```csharp
+this.Top + (this.Height - childForm.Height) / this.Top
+```
+
+위 코드는 `this.Top == 0`이면 오류가 날 수 있으므로 아래처럼 수정 필요.
+
+```csharp
+this.Top + (this.Height - childForm.Height) / 2
+```
+
+2. DB 이름과 SQL 파일이 불일치함.
+   - C# 코드는 `djing` DB 사용
+   - 루트 `soundcloud_db.sql`은 `soundcloud_db` 생성
+   - `DJing Final/testing.sql`에서 `member`, `songs`, `song_likes`, `playlist_songs` 생성문은 주석 상태
+   - 새 PC에서 한 번에 설치할 수 있는 통합 DB 생성 SQL이 필요함
+
+3. SQL 초안의 `songs.user_id`에 `UNIQUE`가 있어 그대로 생성하면 사용자 한 명이 곡 하나만 업로드할 수 있음. 여러 곡 업로드를 위해 `UNIQUE` 제거 필요.
+
+4. 관리자 음악 삭제 시 `playlist_songs`, `song_likes`, `songs`만 삭제함. 해당 곡에 댓글이 있으면 `comment.SongId` 외래키 때문에 삭제가 실패할 수 있으므로 댓글 관련 데이터 처리 필요.
+
+5. 댓글 프로필 아이콘을 표시할 때 댓글마다 `new ProfileEdit(...)`를 생성함. `ProfileEdit` 생성자는 DB 조회까지 수행하므로 댓글이 많을수록 불필요한 폼 생성과 DB 조회가 반복됨. 아이콘은 공용 리소스 함수로 직접 읽도록 개선 필요.
+
+6. DB 연결 문자열과 root 비밀번호가 여러 파일에 중복되어 있음. 공용 설정 또는 DB 헬퍼로 분리 필요.
+
+7. 비밀번호가 평문으로 저장되고 비교됨. 학교 과제 시연은 가능하지만 실제 서비스 기준으로는 해시 저장 필요.
+
+8. 일반 로그인 성공 시 `UserSession.IsGuest = false` 초기화를 넣는 것이 안전함.
+
+9. `Choice.UpdateProfileIconToDB()`는 현재 호출되지 않는 코드임.
+
+10. 저장소에 `soundkloud`와 `DJing Final`이 동시에 있으므로 잘못된 솔루션을 수정하지 않도록 주의. 이후 작업 대상은 반드시 `DJing Final`.
+
+### 아이디/비밀번호 찾기 구현 계획
+
+- 현재 최신 `DJing Final/Login`에는 다음 버튼만 있음
+  - 로그인
+  - 회원가입
+  - 게스트로 시작
+- 아이디/비밀번호 찾기 기능과 `FindAccount` 폼은 아직 없음
+- 다음 작업은 `DH3874/DJing Final`을 기준으로 진행
+- 새로 추가할 파일:
+
+```text
+DJing Final/FindAccount.cs
+DJing Final/FindAccount.Designer.cs
+DJing Final/FindAccount.resx
+```
+
+- `Login` 폼에 `bt_FindAccount` 버튼 추가
+- 버튼 클릭 시 `FindAccount.ShowDialog(this)` 실행
+
+아이디 찾기 방식:
+
+```sql
+SELECT user_id
+FROM member
+WHERE name = @name
+  AND phone = @phone
+LIMIT 1;
+```
+
+비밀번호 찾기는 기존 비밀번호를 표시하지 않고, 아이디·이름·전화번호가 일치하면 새 비밀번호로 재설정:
+
+```sql
+UPDATE member
+SET password = @newPassword
+WHERE user_id = @userId
+  AND name = @name
+  AND phone = @phone;
+```
+
+예정된 FindAccount 컨트롤 이름:
+
+```text
+아이디 찾기:
+tb_FindName
+tb_FindPhone
+lb_FindIDResult
+bt_FindID
+
+비밀번호 재설정:
+tb_ResetID
+tb_ResetName
+tb_ResetPhone
+tb_NewPW
+tb_NewPWCheck
+bt_ResetPW
+```
+
+- SQL은 반드시 매개변수 `@name`, `@phone`, `@userId`, `@newPassword`를 사용
+- 조회 결과는 없을 수 있으므로 `object? result = cmd.ExecuteScalar();` 사용 가능
+- `object?`의 `?`는 해당 변수에 `null`이 들어갈 수 있다는 의미
+- 현재 프로젝트는 `<Nullable>enable</Nullable>`이므로 nullable 문법 사용 가능
+- 과제용으로 이름과 전화번호를 본인 확인 수단으로 사용하되 실제 서비스라면 이메일 또는 문자 인증이 필요함
+
+### 다음 작업 우선순위
+
+1. `DH3874/DJing Final`을 내려받아 Visual Studio에서 빌드 확인
+2. 로그인 창에 아이디/비밀번호 찾기 버튼 배치
+3. `FindAccount` 폼 제작
+4. 아이디 찾기와 비밀번호 재설정 로직 연결
+5. 테스트용 회원정보로 성공·실패·빈칸·비밀번호 불일치 확인
+6. 위 통합본 점검 문제 중 창 위치 계산과 DB 스키마 불일치를 우선 수정
+7. 사용자 승인 없이 `DH3874`, `test`, `main` 브랜치를 병합하거나 기존 파일을 삭제하지 않음
