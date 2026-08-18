@@ -19,25 +19,25 @@ namespace DJing
         {
             tabAccount = new TabControl();
             tabFindID = new TabPage();
-            lb_FindIDResult = new Label();
+            lb_IDResult = new Label();
             bt_FindID = new Button();
             tb_FindPhone = new TextBox();
-            lb_FindPhone = new Label();
+            label2 = new Label();
             tb_FindName = new TextBox();
-            lb_FindName = new Label();
+            label1 = new Label();
             tabResetPW = new TabPage();
             lb_PWResult = new Label();
             bt_ResetPW = new Button();
             tb_NewPWCheck = new TextBox();
-            lb_NewPWCheck = new Label();
+            label7 = new Label();
             tb_NewPW = new TextBox();
-            lb_NewPW = new Label();
+            label6 = new Label();
             tb_ResetPhone = new TextBox();
-            lb_ResetPhone = new Label();
+            label5 = new Label();
             tb_ResetName = new TextBox();
-            lb_ResetName = new Label();
+            label4 = new Label();
             tb_ResetID = new TextBox();
-            lb_ResetID = new Label();
+            label3 = new Label();
             tabAccount.SuspendLayout();
             tabFindID.SuspendLayout();
             tabResetPW.SuspendLayout();
@@ -57,12 +57,12 @@ namespace DJing
             // tabFindID
             // 
             tabFindID.BackColor = Color.FromArgb(30, 30, 30);
-            tabFindID.Controls.Add(lb_FindIDResult);
+            tabFindID.Controls.Add(lb_IDResult);
             tabFindID.Controls.Add(bt_FindID);
             tabFindID.Controls.Add(tb_FindPhone);
-            tabFindID.Controls.Add(lb_FindPhone);
+            tabFindID.Controls.Add(label2);
             tabFindID.Controls.Add(tb_FindName);
-            tabFindID.Controls.Add(lb_FindName);
+            tabFindID.Controls.Add(label1);
             tabFindID.Location = new Point(4, 26);
             tabFindID.Name = "tabFindID";
             tabFindID.Padding = new Padding(3);
@@ -70,15 +70,15 @@ namespace DJing
             tabFindID.TabIndex = 0;
             tabFindID.Text = "아이디 찾기";
             // 
-            // lb_FindIDResult
+            // lb_IDResult
             // 
-            lb_FindIDResult.Font = new Font("맑은 고딕", 11F, FontStyle.Bold, GraphicsUnit.Point);
-            lb_FindIDResult.ForeColor = Color.White;
-            lb_FindIDResult.Location = new Point(80, 270);
-            lb_FindIDResult.Name = "lb_FindIDResult";
-            lb_FindIDResult.Size = new Size(400, 45);
-            lb_FindIDResult.TabIndex = 5;
-            lb_FindIDResult.TextAlign = ContentAlignment.MiddleCenter;
+            lb_IDResult.Font = new Font("맑은 고딕", 11F, FontStyle.Bold, GraphicsUnit.Point);
+            lb_IDResult.ForeColor = Color.White;
+            lb_IDResult.Location = new Point(80, 270);
+            lb_IDResult.Name = "lb_IDResult";
+            lb_IDResult.Size = new Size(400, 45);
+            lb_IDResult.TabIndex = 5;
+            lb_IDResult.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // bt_FindID
             // 
@@ -100,15 +100,15 @@ namespace DJing
             tb_FindPhone.Size = new Size(280, 25);
             tb_FindPhone.TabIndex = 1;
             // 
-            // lb_FindPhone
+            // label2
             // 
-            lb_FindPhone.AutoSize = true;
-            lb_FindPhone.ForeColor = Color.White;
-            lb_FindPhone.Location = new Point(80, 138);
-            lb_FindPhone.Name = "lb_FindPhone";
-            lb_FindPhone.Size = new Size(69, 19);
-            lb_FindPhone.TabIndex = 2;
-            lb_FindPhone.Text = "전화번호";
+            label2.AutoSize = true;
+            label2.ForeColor = Color.White;
+            label2.Location = new Point(80, 138);
+            label2.Name = "label2";
+            label2.Size = new Size(69, 19);
+            label2.TabIndex = 2;
+            label2.Text = "전화번호";
             // 
             // tb_FindName
             // 
@@ -117,15 +117,15 @@ namespace DJing
             tb_FindName.Size = new Size(280, 25);
             tb_FindName.TabIndex = 0;
             // 
-            // lb_FindName
+            // label1
             // 
-            lb_FindName.AutoSize = true;
-            lb_FindName.ForeColor = Color.White;
-            lb_FindName.Location = new Point(80, 88);
-            lb_FindName.Name = "lb_FindName";
-            lb_FindName.Size = new Size(37, 19);
-            lb_FindName.TabIndex = 0;
-            lb_FindName.Text = "이름";
+            label1.AutoSize = true;
+            label1.ForeColor = Color.White;
+            label1.Location = new Point(80, 88);
+            label1.Name = "label1";
+            label1.Size = new Size(37, 19);
+            label1.TabIndex = 0;
+            label1.Text = "이름";
             // 
             // tabResetPW
             // 
@@ -133,15 +133,15 @@ namespace DJing
             tabResetPW.Controls.Add(lb_PWResult);
             tabResetPW.Controls.Add(bt_ResetPW);
             tabResetPW.Controls.Add(tb_NewPWCheck);
-            tabResetPW.Controls.Add(lb_NewPWCheck);
+            tabResetPW.Controls.Add(label7);
             tabResetPW.Controls.Add(tb_NewPW);
-            tabResetPW.Controls.Add(lb_NewPW);
+            tabResetPW.Controls.Add(label6);
             tabResetPW.Controls.Add(tb_ResetPhone);
-            tabResetPW.Controls.Add(lb_ResetPhone);
+            tabResetPW.Controls.Add(label5);
             tabResetPW.Controls.Add(tb_ResetName);
-            tabResetPW.Controls.Add(lb_ResetName);
+            tabResetPW.Controls.Add(label4);
             tabResetPW.Controls.Add(tb_ResetID);
-            tabResetPW.Controls.Add(lb_ResetID);
+            tabResetPW.Controls.Add(label3);
             tabResetPW.Location = new Point(4, 26);
             tabResetPW.Name = "tabResetPW";
             tabResetPW.Padding = new Padding(3);
@@ -180,15 +180,15 @@ namespace DJing
             tb_NewPWCheck.UseSystemPasswordChar = true;
             tb_NewPWCheck.TextChanged += tb_NewPWCheck_TextChanged;
             // 
-            // lb_NewPWCheck
+            // label7
             // 
-            lb_NewPWCheck.AutoSize = true;
-            lb_NewPWCheck.ForeColor = Color.White;
-            lb_NewPWCheck.Location = new Point(60, 248);
-            lb_NewPWCheck.Name = "lb_NewPWCheck";
-            lb_NewPWCheck.Size = new Size(113, 19);
-            lb_NewPWCheck.TabIndex = 8;
-            lb_NewPWCheck.Text = "새 비밀번호 확인";
+            label7.AutoSize = true;
+            label7.ForeColor = Color.White;
+            label7.Location = new Point(60, 248);
+            label7.Name = "label7";
+            label7.Size = new Size(113, 19);
+            label7.TabIndex = 8;
+            label7.Text = "새 비밀번호 확인";
             // 
             // tb_NewPW
             // 
@@ -198,15 +198,15 @@ namespace DJing
             tb_NewPW.TabIndex = 3;
             tb_NewPW.UseSystemPasswordChar = true;
             // 
-            // lb_NewPW
+            // label6
             // 
-            lb_NewPW.AutoSize = true;
-            lb_NewPW.ForeColor = Color.White;
-            lb_NewPW.Location = new Point(60, 198);
-            lb_NewPW.Name = "lb_NewPW";
-            lb_NewPW.Size = new Size(85, 19);
-            lb_NewPW.TabIndex = 6;
-            lb_NewPW.Text = "새 비밀번호";
+            label6.AutoSize = true;
+            label6.ForeColor = Color.White;
+            label6.Location = new Point(60, 198);
+            label6.Name = "label6";
+            label6.Size = new Size(85, 19);
+            label6.TabIndex = 6;
+            label6.Text = "새 비밀번호";
             // 
             // tb_ResetPhone
             // 
@@ -215,15 +215,15 @@ namespace DJing
             tb_ResetPhone.Size = new Size(300, 25);
             tb_ResetPhone.TabIndex = 2;
             // 
-            // lb_ResetPhone
+            // label5
             // 
-            lb_ResetPhone.AutoSize = true;
-            lb_ResetPhone.ForeColor = Color.White;
-            lb_ResetPhone.Location = new Point(60, 148);
-            lb_ResetPhone.Name = "lb_ResetPhone";
-            lb_ResetPhone.Size = new Size(69, 19);
-            lb_ResetPhone.TabIndex = 4;
-            lb_ResetPhone.Text = "전화번호";
+            label5.AutoSize = true;
+            label5.ForeColor = Color.White;
+            label5.Location = new Point(60, 148);
+            label5.Name = "label5";
+            label5.Size = new Size(69, 19);
+            label5.TabIndex = 4;
+            label5.Text = "전화번호";
             // 
             // tb_ResetName
             // 
@@ -232,15 +232,15 @@ namespace DJing
             tb_ResetName.Size = new Size(300, 25);
             tb_ResetName.TabIndex = 1;
             // 
-            // lb_ResetName
+            // label4
             // 
-            lb_ResetName.AutoSize = true;
-            lb_ResetName.ForeColor = Color.White;
-            lb_ResetName.Location = new Point(60, 98);
-            lb_ResetName.Name = "lb_ResetName";
-            lb_ResetName.Size = new Size(37, 19);
-            lb_ResetName.TabIndex = 2;
-            lb_ResetName.Text = "이름";
+            label4.AutoSize = true;
+            label4.ForeColor = Color.White;
+            label4.Location = new Point(60, 98);
+            label4.Name = "label4";
+            label4.Size = new Size(37, 19);
+            label4.TabIndex = 2;
+            label4.Text = "이름";
             // 
             // tb_ResetID
             // 
@@ -249,15 +249,15 @@ namespace DJing
             tb_ResetID.Size = new Size(300, 25);
             tb_ResetID.TabIndex = 0;
             // 
-            // lb_ResetID
+            // label3
             // 
-            lb_ResetID.AutoSize = true;
-            lb_ResetID.ForeColor = Color.White;
-            lb_ResetID.Location = new Point(60, 48);
-            lb_ResetID.Name = "lb_ResetID";
-            lb_ResetID.Size = new Size(53, 19);
-            lb_ResetID.TabIndex = 0;
-            lb_ResetID.Text = "아이디";
+            label3.AutoSize = true;
+            label3.ForeColor = Color.White;
+            label3.Location = new Point(60, 48);
+            label3.Name = "label3";
+            label3.Size = new Size(53, 19);
+            label3.TabIndex = 0;
+            label3.Text = "아이디";
             // 
             // FindAccount
             // 
@@ -284,21 +284,21 @@ namespace DJing
         private TabControl tabAccount;
         private TabPage tabFindID;
         private TabPage tabResetPW;
-        private Label lb_FindName;
+        private Label label1;
         private TextBox tb_FindName;
-        private Label lb_FindPhone;
+        private Label label2;
         private TextBox tb_FindPhone;
         private Button bt_FindID;
-        private Label lb_FindIDResult;
-        private Label lb_ResetID;
+        private Label lb_IDResult;
+        private Label label3;
         private TextBox tb_ResetID;
-        private Label lb_ResetName;
+        private Label label4;
         private TextBox tb_ResetName;
-        private Label lb_ResetPhone;
+        private Label label5;
         private TextBox tb_ResetPhone;
-        private Label lb_NewPW;
+        private Label label6;
         private TextBox tb_NewPW;
-        private Label lb_NewPWCheck;
+        private Label label7;
         private TextBox tb_NewPWCheck;
         private Button bt_ResetPW;
         private Label lb_PWResult;

@@ -65,14 +65,14 @@ namespace DJing
                     // 조회된 회원이 있으면 찾은 아이디를 화면에 표시
                     if (result != null)
                     {
-                        lb_FindIDResult.Text = "아이디: " + result.ToString();
-                        lb_FindIDResult.ForeColor = Color.FromArgb(255, 85, 0);
+                        lb_IDResult.Text = "아이디: " + result.ToString();
+                        lb_IDResult.ForeColor = Color.FromArgb(255, 85, 0);
                     }
                     else
                     {
                         // 이름과 전화번호가 일치하는 회원이 없을 때 표시
-                        lb_FindIDResult.Text = "일치하는 회원정보가 없습니다.";
-                        lb_FindIDResult.ForeColor = Color.Red;
+                        lb_IDResult.Text = "일치하는 회원정보가 없습니다.";
+                        lb_IDResult.ForeColor = Color.Red;
                     }
                 }
             }
