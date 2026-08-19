@@ -10,6 +10,9 @@ namespace DJing
     {
         private string currentUserId; // 로그인한 유저 ID
         private string connStr = "Server=localhost;Database=djing;Uid=root;Pwd=1111;";
+        private DJform? dJform;
+        private soundcloud? soundkloud;
+        private bool isNavigating = false;
 
         public Choice(string userName)
         {
@@ -138,35 +141,83 @@ namespace DJing
 
         private void Choice_FormClosed(object? sender, FormClosedEventArgs e)
         {
-            Environment.Exit(0); // 전체 프로세스 즉시 강제 종료
+            // 일반 종료(X 버튼)일 때만 프로그램 전체를 종료
+            if (!isNavigating)
+            {
+                Environment.Exit(0);
+            }
         }
 
-        private void bt_Mixing_Click(object sender, EventArgs e) 
+        // 로그아웃 과정에서 Choice가 닫힐 때 전체 프로그램이 종료되지 않도록 설정
+        public void PrepareForNavigation()
         {
-            DJform dJform = new DJform();
-
-            dJform.StartPosition = FormStartPosition.Manual;
-            dJform.Location = new Point(
-                this.Left + (this.Width - dJform.Width) / 2,
-                this.Top + (this.Height - dJform.Height) / this.Top
-            );
-
-            this.Hide();
-            dJform.Show();
+            isNavigating = true;
         }
 
+        private void bt_Logout_Click(object sender, EventArgs e)
+        {
+            // 로그인 정보를 지우고 기존 로그인 창으로 돌아감
+            UserSession.UserId = "";
+            UserSession.IsGuest = false;
+
+            Login? loginForm = Application.OpenForms
+                .OfType<Login>()
+                .FirstOrDefault();
+
+            if (loginForm == null || loginForm.IsDisposed)
+            {
+                loginForm = new Login();
+            }
+
+            PrepareForNavigation();
+            loginForm.Show();
+            loginForm.BringToFront();
+            loginForm.Activate();
+            Close();
+        }
+
+        private void bt_Mixing_Click(object sender, EventArgs e)
+        {
+            if (dJform == null || dJform.IsDisposed)
+            {
+                dJform = new DJform();
+            }
+
+            if (Application.OpenForms.OfType<DJform>().Any())
+                MessageBox.Show("이미 Mixing이 열려있습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            else
+            {
+                dJform.StartPosition = FormStartPosition.Manual;
+                dJform.Location = new Point(
+                    this.Left + (this.Width - dJform.Width) / 2,
+                    this.Top + (this.Height - dJform.Height) / this.Top);
+
+                dJform.Owner = this;
+                dJform.Show();
+                dJform.BringToFront();
+            }
+        }
         private void bt_SoundCloud_Click(object sender, EventArgs e)
         {
-            soundcloud soundkloud = new soundcloud();
+            if (soundkloud == null || soundkloud.IsDisposed)
+            {
+                soundkloud = new soundcloud();
+            }
 
-            soundkloud.StartPosition = FormStartPosition.Manual;
-            soundkloud.Location = new Point(
+            if (Application.OpenForms.OfType<soundcloud>().Any())
+                MessageBox.Show("이미 Sound Kloud가 열려있습니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            else
+            {
+
+                soundkloud.StartPosition = FormStartPosition.Manual;
+                soundkloud.Location = new Point(
                 this.Left + (this.Width - soundkloud.Width) / 2,
-                this.Top + (this.Height - soundkloud.Height) / this.Top
-            );
+                this.Top + (this.Height - soundkloud.Height) / this.Top);
 
-            this.Hide();
-            soundkloud.Show();
+                soundkloud.Owner = this;
+                soundkloud.Show();
+            }
         }
     }
 }
+
