@@ -22,6 +22,7 @@ namespace DJing
             bt_Mixing = new Button();
             bt_SoundCloud = new Button();
             lb_UserName = new Label();
+            bt_Logout = new Button();
             ((System.ComponentModel.ISupportInitialize)pb_Profile).BeginInit();
             SuspendLayout();
             // 
@@ -88,12 +89,29 @@ namespace DJing
             lb_UserName.Text = "label1";
             lb_UserName.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // bt_Logout
+            // 
+            bt_Logout.BackColor = Color.FromArgb(200, 45, 45);
+            bt_Logout.Cursor = Cursors.Hand;
+            bt_Logout.FlatAppearance.BorderSize = 0;
+            bt_Logout.FlatStyle = FlatStyle.Flat;
+            bt_Logout.Font = new Font("맑은 고딕", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            bt_Logout.ForeColor = Color.White;
+            bt_Logout.Location = new Point(472, 12);
+            bt_Logout.Name = "bt_Logout";
+            bt_Logout.Size = new Size(100, 32);
+            bt_Logout.TabIndex = 5;
+            bt_Logout.Text = "로그아웃";
+            bt_Logout.UseVisualStyleBackColor = false;
+            bt_Logout.Click += bt_Logout_Click;
+            // 
             // Choice
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(16, 16, 16);
             ClientSize = new Size(584, 441);
+            Controls.Add(bt_Logout);
             Controls.Add(lb_UserName);
             Controls.Add(bt_SoundCloud);
             Controls.Add(bt_Mixing);
@@ -111,6 +129,8 @@ namespace DJing
         private System.Windows.Forms.Button bt_Mixing;
         private System.Windows.Forms.Button bt_SoundCloud;
         private Label lb_UserName;
+        private Button bt_Logout;
     }
 }
+
 
