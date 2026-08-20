@@ -75,10 +75,21 @@ CREATE TABLE comment_like (
 
 -- INSERT INTO member (member_id, user_id, password, name, phone, icon, join_date)
 -- VALUES (
---     '3',                                  	  -- member_id
+--     '1',                                  	  -- member_id
 --     'admin',                                 -- user_id
 --     '12345678',                                  	 -- password
 --     'admin',   								 -- name
+--     '-',   									-- phone
+--     'icon1',                                -- icon
+--     CURDATE()                               -- join_date
+-- );
+
+-- INSERT INTO member (member_id, user_id, password, name, phone, icon, join_date)
+-- VALUES (
+--     '2',                                  	  -- member_id
+--     'Guest',                                 -- user_id
+--     '',                                  	 -- password
+--     'Guest',   								 -- name
 --     '-',   									-- phone
 --     'icon1',                                -- icon
 --     CURDATE()                               -- join_date
